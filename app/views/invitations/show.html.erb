@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Iv fb:</b>
+  <%= @invitation.iv_fb_id %>
+</p>
+
+<p>
+  <b>Is accept:</b>
+  <%= @invitation.is_accept %>
+</p>
+
+
+<%= link_to 'Edit', edit_invitation_path(@invitation) %> |
+<%= link_to 'Back', invitations_path %>
