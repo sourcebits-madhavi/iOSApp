@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessible :fb_id
+  attr_accessible :fb_id, :points
 
   validates :fb_id, :presence => true, :uniqueness => true
   has_many :invitations

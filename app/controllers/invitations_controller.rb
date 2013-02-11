@@ -39,6 +39,8 @@ class InvitationsController < ApplicationController
   def create
 
       user = params[:user]
+     
+      #abort("user #{user}")
 
       from_id = user[:fb_id]
 
@@ -52,23 +54,23 @@ class InvitationsController < ApplicationController
 
         user_invitations.each do |inv|
 
-            inv[:invitation][:fb_id] = from_id
-            inv[:invitation][:is_accept] = false
-            inv[:invitation][:isPoints] = false
+            inv[:fb_id] = from_id
+            inv[:is_accept] = false
+            inv[:isPoints] = false
 
 
-            @invitation = Invitation.new(inv[:invitation])
+            @invitation = Invitation.new(inv)
 
-            @invitations_array.push(inv[:invitation]) 
+            @invitations_array.push(inv) 
 
             render :json => { :errors => @invitation.errors.full_messages } unless @invitation.save
 
         end
 
-        @madhu = Invitation.new.getInvitations(@invitations_array)
+        Invitation.new.getInvitations(@invitations_array)
 
       else
-            render :json => { :errors => "No user found" }
+            render :json => { :message => "No user found" }
       end
    
   end

@@ -1,6 +1,8 @@
 class UsersController < ApplicationController
   before_filter :restrict_access, :except => [:create]
 
+  respond_to :json
+
   # GET /users
   # GET /users.json
   def index
@@ -72,42 +74,91 @@ class UsersController < ApplicationController
       
       render :json => { :errors => @user.errors.full_messages } unless @user.save
 
-    end    
-
-    
+    end       
 
   end
 
+# To claim the points
   def claim
 
       claimed_user_all = Invitation.all
 
-      id = params[:user][:fb_id]
+     # id = params[:user][:fb_id]
+
+      id = params[:id]
+
+      puts "params #{id}"
+
+      @user = User.find_by_fb_id(id)
+
+      existing_points = @user[:points]
+
+      if existing_points == nil
+
+        existing_points = 0
+
+      end
 
       if claimed_user_all.empty?
 
-        render :json => 'empty table'
+        render :json => { :message => "No Record Found" }
 
       else
          
          @accept_array = []
+         @iv_id_array = []
+
          claimed_user_all.each do |invitation|
 
-           if id == invitation.fb_id
-              puts "accept values #{invitation.is_accept}"
-              @accept_array.push(invitation.is_accept)
+           if id == invitation.fb_id && invitation.is_accept == true && invitation.isPoints == false
+               
+                @accept_array.push(invitation.is_accept)
+                @iv_id_array.push(invitation.iv_fb_id)
+                        
            end 
 
          end
 
-         if @accept_array.length != 0
-            render :json =>  "claiming points are"
+         accept_array_length = @accept_array.length
+
+         if accept_array_length != 0
+
+            claim_points = (accept_array_length/3).floor
+
+            puts "Claimed points #{claim_points}"
+
+            i = 0
+
+            while i < claim_points do
+
+              Invitation.find_by_iv_fb_id( @iv_id_array[i] ).update_attributes(:isPoints => true)
+              i+=1
+
+            end
+
+            User.find_by_fb_id(id).update_attributes(:points => existing_points+(claim_points*100))
+
+            #respond_with(@user)
+
+            render :json => { :message => "Claimed Points successfully", :points => existing_points+(claim_points*100) }
+
+           
          else
-            render :json => 'no invitations'
+
+            render :json => { :message => "No one accepted the invitation" }
+
          end
 
       end
 
+  end
+
+  def getpoints
+
+    @user  =  User.find_by_fb_id(params[:id])
+
+    respond_with(@user)
+    
   end
 
   # PUT /users/1

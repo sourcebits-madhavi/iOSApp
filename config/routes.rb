@@ -10,6 +10,7 @@ ReferenceApp::Application.routes.draw do
 
     member do
       post 'claim'
+      get 'getpoints'
     end
 
   end
